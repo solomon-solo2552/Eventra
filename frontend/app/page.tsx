@@ -16,14 +16,14 @@ export default function Home() {
       {user ? (
         <div className="space-y-2">
           <p>Welcome, <strong>{user.full_name}</strong> ({user.role})</p>
-          <button onClick={logout} className="bg-gray-200 px-4 py-2 rounded">
+          <button onClick={logout} className="bg-red-600 hover:bg-red-700 text-white font-medium px-4 py-2 rounded">
             Logout
           </button>
         </div>
       ) : (
         <div className="space-x-4">
-          <Link href="/login" className="bg-blue-600 text-white px-4 py-2 rounded">Login</Link>
-          <Link href="/register" className="bg-gray-200 px-4 py-2 rounded">Register</Link>
+          <Link href="/login" className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">Login</Link>
+          <Link href="/register" className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded">Register</Link>
         </div>
       )}
     </main>
