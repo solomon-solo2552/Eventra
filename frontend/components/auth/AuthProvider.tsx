@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import { useRouter } from "next/navigation";
 import api from "@/lib/api";
 import { User, clearTokens, isLoggedIn } from "@/lib/auth";
 
@@ -18,7 +19,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const [loading, setLoading] = useState(true);
 
     async function refreshUser() {
-        try{
+        try {
             const { data } = await api.get<User>("/auth/me/");
             setUser(data);
         } catch {
@@ -35,13 +36,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
     }, []);
 
+    const router = useRouter();
+
     function logout() {
         clearTokens();
         setUser(null);
-        window.location.href = "/login";
+        router.push("/");
     }
 
-    return(
+    return (
         <AuthContext.Provider value={{ user, loading, logout, refreshUser }}>
             {children}
         </AuthContext.Provider>
