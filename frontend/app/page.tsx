@@ -30,16 +30,16 @@ export default function Home() {
         {user ? (
           <div className="flex items-center gap-4">
             <p>Welcome, <strong>{user.full_name}</strong> ({user.role})</p>
-            <button onClick={logout} className="bg-gray-200 px-4 py-2 rounded">
+            <button onClick={logout} className="bg-red-600 hover:bg-red-700 text-white font-medium px-4 py-2 rounded">
               Logout
             </button>
           </div>
         ) : (
           <div className="space-x-3">
-            <Link href="/login" className="bg-blue-600 text-white px-4 py-2 rounded inline-block">
+            <Link href="/login" className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded transition">
               Login
             </Link>
-            <Link href="/register" className="bg-gray-200 px-4 py-2 rounded inline-block">
+            <Link href="/register" className="bg-orange-500 hover:bg-orange-600 text-white font-medium px-4 py-2 rounded transition">
               Register
             </Link>
           </div>
