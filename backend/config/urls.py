@@ -19,12 +19,14 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from registrations.urls import organizer_urlpatterns
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/auth/", include("accounts.urls")),
     path("api/events/", include("events.urls")),
     path("api/registrations/", include("registrations.urls")),
+    path("api/organizer/", include(organizer_urlpatterns)),
 ]
 
 if settings.DEBUG:

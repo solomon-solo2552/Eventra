@@ -10,6 +10,7 @@ class RegistrationSerializer(serializers.ModelSerializer):
     ticket_price = serializers.DecimalField(
         source="ticket_type.price", max_digits=8, decimal_places=2, read_only=True
     )
+    qr_code_url = serializers.SerializerMethodField()
 
     class Meta:
         model = Registration
@@ -26,6 +27,7 @@ class RegistrationSerializer(serializers.ModelSerializer):
             "ticket_code",
             "checked_in_at",
             "created_at",
+            "qr_code_url",
         )
         read_only_fields = (
             "id",
@@ -36,3 +38,10 @@ class RegistrationSerializer(serializers.ModelSerializer):
             "checked_in_at",
             "created_at",
         )
+
+        def get_qr_code_url(self, obj):
+            if not obj.qr_code:
+                return None
+            request = self.context.get("request")
+            url = obj.qr_code.url
+            return request.build_absolute_uri(url) if request else url
