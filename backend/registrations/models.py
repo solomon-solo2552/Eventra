@@ -24,6 +24,7 @@ class Registration(models.Model):
         max_length=20, choices=Status.choices, default=Status.CONFIRMED
     )
     ticket_code = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
+    qr_code = models.ImageField(upload_to="tickets/", blank=True, null=True)
     checked_in_at = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
