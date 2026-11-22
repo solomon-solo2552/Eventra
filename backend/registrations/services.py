@@ -54,6 +54,11 @@ def register_for_event(*, user, ticket_type_id: int) -> Registration:
         # Fallback if the partial unique constraint fired (race condition).
         raise AlreadyRegistered()
 
+    from .qr import build_ticket_qr
+
+    qr_file = build_ticket_qr(reg)
+    reg.qr_code.save(qr_file.name, qr_file, save=True)
+
     return reg
 
 
