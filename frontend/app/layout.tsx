@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { AuthProvider } from "@/components/auth/AuthProvider";
+import { Navbar } from "@/components/layout/Navbar";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -18,7 +19,6 @@ export const metadata: Metadata = {
   description: "Event Discovery, Ticket Booking & Management Platform",
 };
 
-
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -27,7 +27,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <AuthProvider>{children}</AuthProvider>
+        <AuthProvider>
+          <Navbar />
+          <main className="min-h-[calc(100vh-4rem)]">{children}</main>
+        </AuthProvider>
       </body>
     </html>
   );
