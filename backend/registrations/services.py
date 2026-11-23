@@ -1,6 +1,5 @@
 from django.db import transaction, IntegrityError
 from rest_framework.exceptions import ValidationError
-from backend.registrations.emails import send_confirmation_email
 from events.models import TicketType
 from .models import Registration
 
@@ -59,6 +58,8 @@ def register_for_event(*, user, ticket_type_id: int) -> Registration:
 
     qr_file = build_ticket_qr(reg)
     reg.qr_code.save(qr_file.name, qr_file, save=True)
+
+    from .emails import send_confirmation_email
 
     send_confirmation_email(reg)
 

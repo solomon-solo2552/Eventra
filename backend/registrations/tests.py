@@ -2,6 +2,7 @@ from django.contrib.auth import get_user_model
 from django.db import connections
 from django.test import TransactionTestCase
 from rest_framework.exceptions import ValidationError
+from rest_framework.test import APIClient
 
 from events.models import Event, TicketType
 from .models import Registration
@@ -75,3 +76,57 @@ class SeatLockingTests(TransactionTestCase):
         register_for_event(user=self.bob, ticket_type_id=self.tier.id)
         self.tier.refresh_from_db()
         self.assertEqual(self.tier.sold_count, 1)
+
+
+class CheckInApiTests(TransactionTestCase):
+    def setUp(self):
+        self.org = User.objects.create_user(
+            email="org@eventra.dev", full_name="Org", password="pw", role="organizer"
+        )
+        self.attendee = User.objects.create_user(
+            email="a@eventra.dev", full_name="Alice", password="pw"
+        )
+        self.event = Event.objects.create(
+            organizer=self.org,
+            title="T",
+            venue="V",
+            start_at="2030-01-01T10:00:00Z",
+            end_at="2030-01-01T12:00:00Z",
+            status=Event.Status.PUBLISHED,
+        )
+        self.tier = TicketType.objects.create(
+            event=self.event, name="GA", price="0.00", capacity=10
+        )
+        self.reg = register_for_event(user=self.attendee, ticket_type_id=self.tier.id)
+
+    def test_check_in_idempotent(self):
+        client = APIClient()
+        client.force_authenticate(user=self.org)
+        r1 = client.post(
+            "/api/organizer/checkin/",
+            {"ticket_code": str(self.reg.ticket_code)},
+            format="json",
+        )
+        r2 = client.post(
+            "/api/organizer/checkin/",
+            {"ticket_code": str(self.reg.ticket_code)},
+            format="json",
+        )
+        assert r1.status_code == 200 and r1.data["detail"] == "Checked in."
+        assert r2.status_code == 200 and r2.data["detail"] == "Already checked in."
+
+    def test_cannot_check_in_others_ticket(self):
+        other_org = User.objects.create_user(
+            email="other@eventra.dev",
+            full_name="Other",
+            password="pw",
+            role="organizer",
+        )
+        client = APIClient()
+        client.force_authenticate(user=other_org)
+        r = client.post(
+            "/api/organizer/checkin/",
+            {"ticket_code": str(self.reg.ticket_code)},
+            format="json",
+        )
+        assert r.status_code == 404
