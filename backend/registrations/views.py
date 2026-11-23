@@ -25,7 +25,7 @@ class CreateRegistrationView(APIView):
             )
         reg = register_for_event(user=request.user, ticket_type_id=int(ticket_type_id))
         return Response(
-            RegistrationSerializer(reg).data,
+            RegistrationSerializer(reg, context={"request": request}).data,
             status=status.HTTP_201_CREATED,
         )
 
@@ -40,6 +40,11 @@ class MyRegistrationsView(generics.ListAPIView):
         return Registration.objects.filter(user=self.request.user).select_related(
             "event", "ticket_type"
         )
+
+    def get_serializer_context(self):
+        ctx = super().get_serializer_context()
+        ctx["request"] = self.request
+        return ctx
 
 
 class CancelRegistrationView(APIView):

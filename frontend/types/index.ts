@@ -29,3 +29,19 @@ export type Paginated<T> = {
     previous: string | null;
     results: T[];
 };
+
+export type Registration = {
+    id: number;
+    event: number;
+    event_title: string;
+    event_start_at: string;
+    event_venue: string;
+    ticket_type: number;
+    ticket_name: string;
+    ticket_price: string;
+    status: "confirmed" | "cancelled";
+    ticket_code: string;
+    qr_code_url: string | null;
+    checked_in_at: string | null;
+    created_at: string;
+}

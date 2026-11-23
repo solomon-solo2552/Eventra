@@ -25,9 +25,9 @@ class RegistrationSerializer(serializers.ModelSerializer):
             "ticket_price",
             "status",
             "ticket_code",
+            "qr_code_url",
             "checked_in_at",
             "created_at",
-            "qr_code_url",
         )
         read_only_fields = (
             "id",
@@ -35,6 +35,7 @@ class RegistrationSerializer(serializers.ModelSerializer):
             "ticket_type",
             "status",
             "ticket_code",
+            "qr_code_url",
             "checked_in_at",
             "created_at",
         )
