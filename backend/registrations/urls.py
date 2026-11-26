@@ -1,10 +1,5 @@
 from django.urls import path
-from .views import (
-    CreateRegistrationView,
-    MyRegistrationsView,
-    CancelRegistrationView,
-    TicketView,
-)
+from .views import *
 
 urlpatterns = [
     path("", CreateRegistrationView.as_view(), name="register-for-event"),
@@ -21,4 +16,15 @@ from .views import CheckInView
 
 organizer_urlpatterns = [
     path("checkin/", CheckInView.as_view(), name="organizer-checkin"),
+    path("stats/", OrganizerStatsView.as_view(), name="organizer-stats"),
+    path(
+        "events/<int:pk>/attendees/",
+        EventAttendeesView.as_view(),
+        name="event-attendees",
+    ),
+    path(
+        "events/<int:pk>/attendees.csv",
+        EventAttendeesCSVView.as_view(),
+        name="event-attendees-csv",
+    ),
 ]

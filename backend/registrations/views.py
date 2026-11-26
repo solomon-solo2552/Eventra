@@ -1,3 +1,4 @@
+import csv
 from rest_framework import generics, status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -5,10 +6,12 @@ from rest_framework.views import APIView
 from rest_framework.parsers import MultiPartParser, FormParser
 
 from django.utils import timezone
+from django.http import HttpResponse
 
 from .models import Registration
 from .serializers import RegistrationSerializer
 from .services import register_for_event, cancel_registration
+from .stats import organizer_stats
 
 
 class CreateRegistrationView(APIView):
@@ -136,3 +139,109 @@ class CheckInView(APIView):
                 "checked_in_at": reg.checked_in_at,
             }
         )
+
+
+class OrganizerStatsView(APIView):
+    """GET /api/organizer/stats/"""
+
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        if request.user.role != "organizer":
+            return Response(
+                {"detail": "Organizer only."}, status=status.HTTP_403_FORBIDDEN
+            )
+        return Response(organizer_stats(request.user))
+
+
+class EventAttendeesView(APIView):
+    """GET /api/organizer/events/:id/attendees/"""
+
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, pk: int):
+        from events.models import Event
+
+        try:
+            event = Event.objects.get(pk=pk, organizer=request.user)
+        except Event.DoesNotExist:
+            return Response({"detail": "Not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        regs = (
+            Registration.objects.filter(
+                event=event, status=Registration.Status.CONFIRMED
+            )
+            .select_related("user", "ticket_type")
+            .order_by("created_at")
+        )
+
+        rows = [
+            {
+                "id": r.id,
+                "attendee": r.user.full_name,
+                "email": r.user.email,
+                "ticket": r.ticket_type.name,
+                "price": str(r.ticket_type.price),
+                "ticket_code": str(r.ticket_code),
+                "checked_in_at": r.checked_in_at,
+                "registered_at": r.created_at,
+            }
+            for r in regs
+        ]
+        return Response(rows)
+
+
+class EventAttendeesCSVView(APIView):
+    """GET /api/organizer/events/:id/attendees.csv"""
+
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, pk: int):
+        from events.models import Event
+
+        try:
+            event = Event.objects.get(pk=pk, organizer=request.user)
+        except Event.DoesNotExist:
+            return Response({"detail": "Not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        regs = (
+            Registration.objects.filter(
+                event=event, status=Registration.Status.CONFIRMED
+            )
+            .select_related("user", "ticket_type")
+            .order_by("created_at")
+        )
+
+        response = HttpResponse(content_type="text/csv")
+        response["Content-Disposition"] = (
+            f'attachment; filename="attendees_event_{event.id}.csv"'
+        )
+        writer = csv.writer(response)
+        writer.writerow(
+            [
+                "Name",
+                "Email",
+                "Ticket",
+                "Price",
+                "Ticket Code",
+                "Checked In",
+                "Registered At",
+            ]
+        )
+        for r in regs:
+            writer.writerow(
+                [
+                    r.user.full_name,
+                    r.user.email,
+                    r.ticket_type.name,
+                    r.ticket_type.price,
+                    r.ticket_code,
+                    (
+                        r.checked_in_at.strftime("%Y-%m-%d %H:%M")
+                        if r.checked_in_at
+                        else ""
+                    ),
+                    r.created_at.strftime("%Y-%m-%d %H:%M"),
+                ]
+            )
+        return Response
