@@ -17,7 +17,7 @@ def organizer_stats(organizer):
 
     revenue = (
         regs.filter(status=Registration.Status.CONFIRMED).aggregate(
-            toatal=Sum("ticket_type__price")
+            total=Sum("ticket_type__price")
         )["total"]
         or 0
     )

@@ -130,3 +130,34 @@ class CheckInApiTests(TransactionTestCase):
             format="json",
         )
         assert r.status_code == 404
+
+
+class StatsTests(TransactionTestCase):
+    def setUp(self):
+        self.org = User.objects.create_user(
+            email="org@eventra.dev", full_name="Org", password="pw", role="organizer"
+        )
+        self.attendee = User.objects.create_user(
+            email="a@eventra.dev", full_name="Alice", password="pw"
+        )
+        self.event = Event.objects.create(
+            organizer=self.org,
+            title="T",
+            venue="V",
+            start_at="2030-01-01T10:00:00Z",
+            end_at="2030-01-01T12:00:00Z",
+            status=Event.Status.PUBLISHED,
+        )
+        self.tier = TicketType.objects.create(
+            event=self.event, name="GA", price="100.00", capacity=10
+        )
+        self.reg = register_for_event(user=self.attendee, ticket_type_id=self.tier.id)
+
+    def test_stats_reflect_registrations(self):
+        client = APIClient()
+        client.force_authenticate(user=self.org)
+        data = client.get("/api/organizer/stats/").data
+        assert data["total_events"] == 1
+        assert data["total_registrations"] == 1
+        assert data["revenue"] == 100.0
+        assert data["check_in_rate"] == 0.0
