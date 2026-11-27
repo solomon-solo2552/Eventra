@@ -47,6 +47,13 @@ export default function OrganizerEventsPage() {
                             </div>
                             <div className="space-x-2">
                                 <Link
+                                    href={`/organizer/events/${e.id}/attendees`}
+                                    className="text-green-700"
+                                >
+                                    Attendees
+                                </Link>
+
+                                <Link
                                     href={`/organizer/events/${e.id}/edit`}
                                     className="text-blue-600"
                                 >
