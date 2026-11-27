@@ -3,8 +3,9 @@
 import { useRouter } from "next/navigation";
 import { createEvent } from "@/lib/events";
 import { EventForm } from "@/components/events/EventForm";
+import { RequireRole } from "@/components/auth/RequireRole";
 
-export default function NewEventPage() {
+function NewEventInner() {
     const router = useRouter();
     return (
         <main className="max-w-3xl mx-auto p-6">
@@ -18,4 +19,12 @@ export default function NewEventPage() {
             />
         </main>
     );
+}
+
+export default function NewEventPage() {
+    return (
+        <RequireRole role="organizer">
+            <NewEventPage />
+        </RequireRole>
+    )
 }

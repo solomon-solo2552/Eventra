@@ -4,6 +4,7 @@ import { Suspense, useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { Attendee, attendeesCsvUrl, fetchEventAttendees } from "@/lib/organizer";
+import { RequireRole } from "@/components/auth/RequireRole";
 
 function AttendeesContent() {
     const { id } = useParams<{ id: string }>();
@@ -71,8 +72,10 @@ function AttendeesContent() {
 
 export default function AttendeesPage() {
     return (
-        <Suspense fallback={<main className="p-8">Loading...</main>}>
-            <AttendeesContent />
-        </Suspense>
+        <RequireRole role="organizer">
+            <Suspense fallback={<main className="p-8">Loading...</main>}>
+                <AttendeesContent />
+            </Suspense>
+        </RequireRole>
     );
 }

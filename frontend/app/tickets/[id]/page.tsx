@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import Link from "next/link";
 import api from "@/lib/api";
 import { Registration } from "@/types";
+import { RequireRole } from "@/components/auth/RequireRole";
 
 function TicketContent() {
     const { id } = useParams<{ id: string }>();
@@ -78,8 +79,10 @@ function TicketContent() {
 
 export default function TicketPage() {
     return (
-        <Suspense fallback={<main className="p-8">Loading...</main>}>
-            <TicketContent />
-        </Suspense>
+        <RequireRole role="attendee">
+            <Suspense fallback={<main className="p-8">Loading...</main>}>
+                <TicketContent />
+            </Suspense>
+        </RequireRole>
     );
 }

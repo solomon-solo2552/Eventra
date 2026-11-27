@@ -6,8 +6,9 @@ import {
     BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid,
 } from "recharts";
 import { fetchOrganizerStats, OrganizerStats } from "@/lib/organizer";
+import { RequireRole } from "@/components/auth/RequireRole";
 
-export default function DashboardPage() {
+function DashboardInner() {
     const [stats, setStats] = useState<OrganizerStats | null>(null);
     const [error, setError] = useState("");
 
@@ -61,4 +62,12 @@ function StatCard({ label, value }: { label: string; value: number | string }) {
             <p className="text-2xl font-semibold">{value}</p>
         </div>
     );
+}
+
+export default function DashboardPage() {
+    return (
+        <RequireRole role="organizer">
+            <DashboardInner />
+        </RequireRole>
+    )
 }

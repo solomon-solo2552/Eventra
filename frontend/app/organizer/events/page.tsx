@@ -4,8 +4,9 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { fetchEvents, deleteEvent } from "@/lib/events";
 import { Event } from "@/types";
+import { RequireRole } from "@/components/auth/RequireRole";
 
-export default function OrganizerEventsPage() {
+function OrganizerEventsInner() {
     const [events, setEvents] = useState<Event[]>([]);
 
     async function load() {
@@ -71,5 +72,13 @@ export default function OrganizerEventsPage() {
                 </div>
             )}
         </main>
+    );
+}
+
+export default function OrganizerEventsPage() {
+    return (
+        <RequireRole role="organizer">
+            <OrganizerEventsPage />
+        </RequireRole>
     );
 }

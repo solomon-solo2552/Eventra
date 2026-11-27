@@ -4,8 +4,9 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { cancelRegistration, fetchMyRegistrations } from "@/lib/registrations";
 import { Registration } from "@/types";
+import { RequireRole } from "@/components/auth/RequireRole";
 
-export default function MyRegistrationsPage() {
+function MyRegistrationsInner() {
     const [regs, setRegs] = useState<Registration[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
@@ -92,4 +93,12 @@ export default function MyRegistrationsPage() {
             )}
         </main>
     );
+}
+
+export default function MyRegistrationsPage() {
+    return (
+        <RequireRole role="attendee">
+            <MyRegistrationsInner />
+        </RequireRole>
+    )
 }

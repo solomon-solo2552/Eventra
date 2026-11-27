@@ -3,6 +3,7 @@
 import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { checkInTicket } from "@/lib/tickets";
+import { RequireRole } from "@/components/auth/RequireRole";
 
 function CheckInContent() {
     const params = useSearchParams();
@@ -81,8 +82,10 @@ function CheckInContent() {
 
 export default function CheckInPage() {
     return (
-        <Suspense fallback={<main className="p-8">Loading...</main>}>
-            <CheckInContent />
-        </Suspense>
+        <RequireRole role="organizer">
+            <Suspense fallback={<main className="p-8">Loading...</main>}>
+                <CheckInContent />
+            </Suspense>
+        </RequireRole>
     );
 }
